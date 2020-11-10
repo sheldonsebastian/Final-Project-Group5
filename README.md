@@ -1,2 +1,2 @@
-# machine_learning_II
+# Final Project Group
 Class Project
