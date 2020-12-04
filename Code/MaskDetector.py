@@ -173,10 +173,9 @@ generic_transformer = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 # create dataset using ImageFolder
-train_dataset = datasets.ImageFolder("/home/ubuntu/Workspaces/Project/root_data/train/",
-                                     transform=train_transformer)
+train_dataset = datasets.ImageFolder(BASE_DIR + "root_data/train/", transform=train_transformer)
 
-val_dataset = datasets.ImageFolder("/home/ubuntu/Workspaces/Project/root_data/validation/",
+val_dataset = datasets.ImageFolder(BASE_DIR + "root_data/validation/",
                                    transform=generic_transformer)
 
 # holdout_dataset = datasets.ImageFolder("/home/ubuntu/Workspaces/Project/root_data/holdout/",
@@ -258,6 +257,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_incepti
 
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
+
+                # finding accuracy
                 running_corrects += torch.sum(preds == labels.data)
 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
@@ -295,20 +296,19 @@ model, hist = train_model(model, dataloaders_dict, criterion, optimizer_ft,
 torch.cuda.empty_cache()
 
 # %% --------------------Check Accuracy metrics for Train
-model.eval()
-for inputs, label in train_dataset:
-    with torch.no_grad():
-        predictions = model(input.to(device))
-        predictions = (torch.sigmoid(predictions) > 0.5).to(torch.float32)
-        targets = label.to(device)
-        # F1 score
-
-        # Precision
-
-        # Recall
-
-        # ROC
-
-        # AUC
+# model.eval()
+# for inputs, label in train_dataset:
+#     with torch.no_grad():
+#         predictions = model(input.to(device))
+#         targets = label.to(device)
+#         # F1 score
+#
+#         # Precision
+#
+#         # Recall
+#
+#         # ROC
+#
+#         # AUC
 
 # %% --------------------
