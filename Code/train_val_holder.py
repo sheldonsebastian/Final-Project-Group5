@@ -1,4 +1,5 @@
 # %% --------------------
+# add ps
 import os
 
 import random
@@ -7,7 +8,7 @@ import random
 seed = 42
 
 # %% --------------------
-BASE_DIR = "/home/ubuntu/Workspaces/Project/"
+BASE_DIR = "/home/ubuntu/Deep-Learning/Exam2/"
 
 # %% --------------------
 # create 3 folders in specified path
