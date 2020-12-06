@@ -1,5 +1,4 @@
 # %% --------------------
-# add ps
 import os
 
 import random
