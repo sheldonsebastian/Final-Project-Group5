@@ -314,7 +314,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_incepti
 
 # %% --------------------
 model.to(device)
-
+# store class labels
+idx_to_class = { v : k for k,v in train_dataset.class_to_idx.items()}
 # %%--------------------------
 model_resnet50, hist, optimizer_resnet50 = train_model(model, dataloaders_dict, criterion, optimizer_ft,
                                                        num_epochs=EPOCHS, is_inception=(model_name == "inception"))
@@ -324,9 +325,10 @@ torch.cuda.empty_cache()
 
 checkpoint = {'base_model': model,
               'optim_state_dict': optimizer_resnet50.state_dict(),
-              'state_dict': model_resnet50.state_dict()
-              # 'class_to_idx': model_resnet50.class_to_idx
-              }
+              'state_dict': model_resnet50.state_dict(),
+              'class_to_idx': idx_to_class
+             }
+
 torch.save(checkpoint, 'resnet50_2.pt')
 
 
