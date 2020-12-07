@@ -176,7 +176,7 @@ optimizer_ft = optim.Adam(params_to_update, lr=LR)
 train_transformer = transforms.Compose([
     transforms.Resize(input_size),
     transforms.ToTensor(),
-    transforms.ColorJitter(saturation=[0, 0]),
+    transforms.ColorJitter(saturation=[0, 1]),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 # validation and holdout transformation is generic
@@ -184,7 +184,6 @@ train_transformer = transforms.Compose([
 generic_transformer = transforms.Compose([
     transforms.Resize(input_size),
     transforms.ToTensor(),
-    transforms.ColorJitter(saturation=[0, 0]),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 # create dataset using ImageFolder
