@@ -2,12 +2,14 @@
 # %%--------------------------------------Imports
 
 import copy
+import os
 import random
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from torchvision import models
@@ -24,14 +26,16 @@ torch.backends.cudnn.deterministic = True
 
 # %% --------------------
 BASE_DIR = "/home/ubuntu/Workspaces/Project/"
+save_path = BASE_DIR + "saved_models/"
+os.makedirs(save_path, exist_ok=True)
 
 # %% --------------------Configurable Parameters
-model_name = "resnet18"
+model_name = "resnet50"
 
 # covered, uncovered, incorrect
 num_of_classes = 3
 
-EPOCHS = 2
+EPOCHS = 10
 LR = 0.001
 
 BATCH_SIZE = 512
@@ -127,6 +131,16 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         model_ft.fc = nn.Linear(num_ftrs, num_classes)
         input_size = 299
 
+    elif model_name == "mobilenet_v2":
+        """ MobileNet V2
+        https://pytorch.org/hub/pytorch_vision_mobilenet_v2/
+        """
+        model_ft = torch.hub.load('pytorch/vision:v0.6.0', 'mobilenet_v2', pretrained=True)
+        set_parameter_requires_grad(model_ft, feature_extract)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        input_size = 224
+
     else:
         print("Invalid model name, exiting...")
         exit()
@@ -161,14 +175,14 @@ optimizer_ft = optim.Adam(params_to_update, lr=LR)
 # train transformation
 # some augmentation
 train_transformer = transforms.Compose([
-    transforms.RandomResizedCrop(input_size),
+    transforms.Resize(input_size),
+
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
-# validation and holdout transformation is generic
 # normalization and resize
 generic_transformer = transforms.Compose([
-    transforms.RandomResizedCrop(input_size),
+    transforms.Resize(input_size),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
@@ -178,13 +192,9 @@ train_dataset = datasets.ImageFolder(BASE_DIR + "root_data/train/", transform=tr
 val_dataset = datasets.ImageFolder(BASE_DIR + "root_data/validation/",
                                    transform=generic_transformer)
 
-# holdout_dataset = datasets.ImageFolder("/home/ubuntu/Workspaces/Project/root_data/holdout/",
-#                                     transform=generic_transformer)
-
 # create dataloader
 train_dataloader = DataLoader(train_dataset, num_workers=4, batch_size=BATCH_SIZE, shuffle=True)
 val_dataloader = DataLoader(val_dataset, num_workers=4, batch_size=BATCH_SIZE, shuffle=True)
-# holdout_dataloader = DataLoader(holdout_dataset, num_workers=4, batch_size=BATCH_SIZE, shuffle=True)
 
 # create dataloader dictionary
 dataloaders_dict = {"train": train_dataloader, "val": val_dataloader}
@@ -289,26 +299,67 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_incepti
 model.to(device)
 
 # %%--------------------------
-model, hist = train_model(model, dataloaders_dict, criterion, optimizer_ft,
-                          num_epochs=EPOCHS, is_inception=(model_name == "inception"))
+# model, hist = train_model(model, dataloaders_dict, criterion, optimizer_ft,
+#                           num_epochs=EPOCHS, is_inception=(model_name == "inception"))
+
+# %% --------------------Save the best model
+# torch.save(model.state_dict(), save_path + "model_" + model_name + ".pt")
 
 # %% --------------------
 torch.cuda.empty_cache()
 
-# %% --------------------Check Accuracy metrics for Train
-# model.eval()
-# for inputs, label in train_dataset:
-#     with torch.no_grad():
-#         predictions = model(input.to(device))
-#         targets = label.to(device)
-#         # F1 score
-#
-#         # Precision
-#
-#         # Recall
-#
-#         # ROC
-#
-#         # AUC
+# %% --------------------Load the best model
+model.load_state_dict(torch.load(save_path + "model_" + model_name + ".pt"))
+
+
+# %% --------------------Evaluation metrics
+def find_evaluation_metrics(folder):
+    model.eval()
+
+    # use generic transformer
+    acc_dataset = datasets.ImageFolder(BASE_DIR + "root_data/" + folder + "/",
+                                       transform=generic_transformer)
+    acc_dataloader = DataLoader(acc_dataset, num_workers=4, batch_size=BATCH_SIZE, shuffle=True)
+
+    pred = []
+    actual = []
+
+    # get all outputs
+    for inputs, label in acc_dataloader:
+        with torch.no_grad():
+            # logit
+            predictions = model(inputs.to(device))
+
+            # find index with max logit
+            val, index = torch.max(predictions, 1)
+
+            # append prediction
+            pred.extend(index.tolist())
+
+            # append actual
+            actual.extend(label.tolist())
+
+    accuracy = accuracy_score(actual, pred)
+    print("Accuracy::" + str(accuracy))
+
 
 # %% --------------------
+print("Train Evaluation Metrics")
+print("-" * 10)
+find_evaluation_metrics("train")
+print()
+torch.cuda.empty_cache()
+
+# %% --------------------
+print("Validation Evaluation Metrics")
+print("-" * 10)
+find_evaluation_metrics("validation")
+print()
+torch.cuda.empty_cache()
+
+# %% --------------------
+print("Holdout Evaluation Metrics")
+print("-" * 10)
+find_evaluation_metrics("holdout")
+print()
+torch.cuda.empty_cache()
