@@ -8,6 +8,9 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.idea
+model_resnet50.pt
+resnet50_2.pt
 build/
 develop-eggs/
 dist/

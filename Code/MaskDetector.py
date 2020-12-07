@@ -1,8 +1,8 @@
-# https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
 # %%--------------------------------------Imports
 
 import copy
 import random
+import matplotlib.pyplot as plt
 
 import numpy as np
 import torch
@@ -23,7 +23,8 @@ random.seed(seed)
 torch.backends.cudnn.deterministic = True
 
 # %% --------------------
-BASE_DIR = "/home/ubuntu/Workspaces/Project/"
+BASE_DIR = "/home/ubuntu/Deep-Learning/final_project/"
+DATA_DIR = "/home/ubuntu/Deep-Learning/final_project/root_data/"
 
 # %% --------------------Configurable Parameters
 model_name = "resnet18"
@@ -31,7 +32,7 @@ model_name = "resnet18"
 # covered, uncovered, incorrect
 num_of_classes = 3
 
-EPOCHS = 2
+EPOCHS = 1
 LR = 0.001
 
 BATCH_SIZE = 512
@@ -134,6 +135,15 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
     return model_ft, input_size
 
 
+def plot_error(train_loss, valid_loss):
+    plt.plot([x for x in range(len(train_loss))], train_loss, label='train', color='r')
+    plt.plot([x for x in range(len(train_loss))], valid_loss, label='validation', color='g')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Train vs Validation Loss')
+    plt.legend()
+    plt.show()
+
 # %% --------------------
 # Initialize the model for this run
 model, input_size = initialize_model(model_name, num_of_classes, feature_extract_param,
@@ -162,6 +172,7 @@ optimizer_ft = optim.Adam(params_to_update, lr=LR)
 # some augmentation
 train_transformer = transforms.Compose([
     transforms.RandomResizedCrop(input_size),
+    transforms.RandomRotation(45),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
@@ -173,10 +184,10 @@ generic_transformer = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 # create dataset using ImageFolder
-train_dataset = datasets.ImageFolder("/home/ubuntu/Workspaces/Project/root_data/train/",
+train_dataset = datasets.ImageFolder(DATA_DIR+"train",
                                      transform=train_transformer)
 
-val_dataset = datasets.ImageFolder("/home/ubuntu/Workspaces/Project/root_data/validation/",
+val_dataset = datasets.ImageFolder(DATA_DIR+"validation",
                                    transform=generic_transformer)
 
 # holdout_dataset = datasets.ImageFolder("/home/ubuntu/Workspaces/Project/root_data/holdout/",
@@ -202,6 +213,8 @@ criterion = nn.CrossEntropyLoss()
 # %% --------------------
 def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_inception=False):
     val_acc_history = []
+    train_loss = []
+    valid_loss = []
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
@@ -265,6 +278,16 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_incepti
 
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
 
+            # store train and valid loss separately
+            if phase == 'train':
+                train_loss.append(epoch_loss)
+            else:
+                valid_loss.append(epoch_loss)
+
+            # plot train and valid loss after after 3 epochs
+            if phase == "valid" and epoch % 3 == 0:
+                plot_error(train_loss, valid_loss)
+
             # deep copy the best model
             # model checkpoint
             if phase == 'val' and epoch_acc > best_acc:
@@ -281,26 +304,29 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_incepti
     # load best model weights
     model.load_state_dict(best_model_wts)
 
-    return model, val_acc_history
+    return model, val_acc_history, optimizer
 
 
 # %% --------------------
 model.to(device)
 
+# store class labels
+idx_to_class = { v : k for k,v in train_dataset.class_to_idx.items()}
+
 # %%--------------------------
-model, hist = train_model(model, dataloaders_dict, criterion, optimizer_ft,
+model_resnet50, hist, optimizer_resnet50 = train_model(model, dataloaders_dict, criterion, optimizer_ft,
                           num_epochs=EPOCHS, is_inception=(model_name == "inception"))
 
 # %% --------------------
 torch.cuda.empty_cache()
 
 # %% --------------------Check Accuracy metrics for Train
-model.eval()
-for inputs, label in train_dataset:
-    with torch.no_grad():
-        predictions = model(input.to(device))
-        predictions = (torch.sigmoid(predictions) > 0.5).to(torch.float32)
-        targets = label.to(device)
+# model.eval()
+# for inputs, label in train_dataset:
+#     with torch.no_grad():
+#         predictions = model(input.to(device))
+#         predictions = (torch.sigmoid(predictions) > 0.5).to(torch.float32)
+#         targets = label.to(device)
         # F1 score
 
         # Precision
@@ -312,3 +338,10 @@ for inputs, label in train_dataset:
         # AUC
 
 # %% --------------------
+
+checkpoint = {'base_model': model,
+              'optim_state_dict': optimizer_resnet50.state_dict(),
+              'state_dict': model_resnet50.state_dict(),
+              'class_to_idx': idx_to_class
+             }
+torch.save(checkpoint, 'resnet50_2.pt')
