@@ -7,7 +7,7 @@ import random
 seed = 42
 
 # %% --------------------
-BASE_DIR = "/home/ubuntu/Workspaces/Project/"
+BASE_DIR = "/home/ubuntu/Deep-Learning/final_project/"
 
 # %% --------------------
 # create 3 folders in specified path
