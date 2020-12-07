@@ -69,7 +69,8 @@ def detect_mask(image_path, model, k=3):
 	model.to(device)
 	model.eval()
 	image = process_image(image_path).unsqueeze_(0)
-	output = model(image.to(device)) / 100
+	output = model(image.to(device))
+	output = torch.nn.functional.softmax(output, 1)
 	output = output.float().cpu()
 	return torch.topk(output, k)
 
@@ -88,21 +89,22 @@ def plot_probs(face_class, face_probs):
 	plt.show()
 
 
-image_1 = "image1.jpg"
+image_1 = "test16.jpg"
 face_image = process_image(image_1, asNumpy=True)
 # face_image.shape
 show_image(face_image)
 
 # load model from disk
 t_model = torch.load("resnet50_2.pt")
-base_model = t_model['base_model']
+facemask_model = t_model['base_model']
 idx_to_class = t_model['class_to_idx']
-facemask_model = base_model.load_state_dict(t_model['state_dict'], strict=False)
+facemask_model.load_state_dict(t_model['state_dict'])
 
 
 # get top probabilities and classes
 top_probs, top_classes = detect_mask(image_1, facemask_model)
 
-# face_class = [idx_to_class[x.item()] for x in top_classes[0]]
-# face_probs = [x.item() for x in top_probs[0]]
+face_class = [idx_to_class[x.item()] for x in top_classes[0]]
+face_probs = [x.item() for x in top_probs[0]]
 
+plot_probs(face_class, face_probs)
