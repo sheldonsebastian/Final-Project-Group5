@@ -1,4 +1,3 @@
-# https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
 # %%--------------------------------------Imports
 import os
 import copy
@@ -28,13 +27,14 @@ BASE_DIR = "/home/ubuntu/Deep-Learning/Exam2/"
 save_path = BASE_DIR + "saved_models/"
 os.makedirs(save_path, exist_ok=True)
 
+
 # %% --------------------Configurable Parameters
 model_name = "resnet50"
 
 # covered, uncovered, incorrect
 num_of_classes = 3
-
 EPOCHS = 10
+
 LR = 0.001
 
 BATCH_SIZE = 512
@@ -145,7 +145,6 @@ def plot_error(train_loss, valid_loss):
     plt.title('Train vs Validation Loss')
     plt.legend()
     plt.show()
-
 
 # %% --------------------
 # Initialize the model for this run
@@ -313,6 +312,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_incepti
 
 # %% --------------------
 model.to(device)
+
 # store class labels
 idx_to_class = { v : k for k,v in train_dataset.class_to_idx.items()}
 # %%--------------------------
@@ -386,3 +386,4 @@ print("-" * 10)
 find_evaluation_metrics("holdout")
 print()
 torch.cuda.empty_cache()
+
