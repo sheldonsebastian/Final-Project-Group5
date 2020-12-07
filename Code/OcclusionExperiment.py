@@ -13,10 +13,9 @@ from PIL import Image
 from matplotlib.pyplot import cm
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from torchvision import models
 
 # %% --------------------
-seed = 42
+seed = 19
 
 # %% --------------------
 torch.manual_seed(seed)
@@ -29,108 +28,18 @@ torch.backends.cudnn.deterministic = True
 BASE_DIR = "/home/ubuntu/Workspaces/Project/"
 save_path = BASE_DIR + "saved_models/"
 
-# %% --------------------Configuration of model
-model_name = "resnet50"
-
-# covered, uncovered, incorrect
-num_of_classes = 3
-
 BATCH_SIZE = 1
 
-
-# %% --------------------initialize pretrained model & return input size desired by pretrained model
-def initialize_model(model_name, num_classes):
-    # Initialize these variables which will be set in this if statement. Each of these
-    #   variables is model specific.
-    model_ft = None
-    input_size = 0
-
-    if model_name == "resnet18":
-        """ Resnet18
-        """
-        model_ft = models.resnet18()
-        num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs, num_classes)
-        input_size = 224
-
-    elif model_name == "resnet50":
-        """ Resnet50
-        """
-        model_ft = models.resnet50()
-        num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs, num_classes)
-        input_size = 224
-
-    elif model_name == "alexnet":
-        """ Alexnet
-        """
-        model_ft = models.alexnet()
-        num_ftrs = model_ft.classifier[6].in_features
-        model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
-        input_size = 224
-
-    elif model_name == "vgg":
-        """ VGG11_bn
-        """
-        model_ft = models.vgg11_bn()
-        num_ftrs = model_ft.classifier[6].in_features
-        model_ft.classifier[6] = nn.Linear(num_ftrs, num_classes)
-        input_size = 224
-
-    elif model_name == "squeezenet":
-        """ Squeezenet
-        """
-        model_ft = models.squeezenet1_0()
-        model_ft.classifier[1] = nn.Conv2d(512, num_classes, kernel_size=(1, 1), stride=(1, 1))
-        model_ft.num_classes = num_classes
-        input_size = 224
-
-    elif model_name == "densenet":
-        """ Densenet
-        """
-        model_ft = models.densenet121()
-        num_ftrs = model_ft.classifier.in_features
-        model_ft.classifier = nn.Linear(num_ftrs, num_classes)
-        input_size = 224
-
-    elif model_name == "inception":
-        """ Inception v3
-        Be careful, expects (299,299) sized images and has auxiliary output
-        """
-        model_ft = models.inception_v3()
-        # Handle the auxilary net
-        num_ftrs = model_ft.AuxLogits.fc.in_features
-        model_ft.AuxLogits.fc = nn.Linear(num_ftrs, num_classes)
-        # Handle the primary net
-        num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs, num_classes)
-        input_size = 299
-
-    elif model_name == "mobilenet_v2":
-        """ MobileNet V2
-        https://pytorch.org/hub/pytorch_vision_mobilenet_v2/
-        """
-        model_ft = torch.hub.load('pytorch/vision:v0.6.0', 'mobilenet_v2', pretrained=True)
-        num_ftrs = model_ft.fc.in_features
-        model_ft.fc = nn.Linear(num_ftrs, num_classes)
-        input_size = 224
-
-    else:
-        print("Invalid model name, exiting...")
-        exit()
-
-    return model_ft, input_size
-
+# %% --------------------
+model_dict = torch.load(save_path + "resnet50_2.pt")
 
 # %% --------------------
 # Initialize the model
-model, input_size = initialize_model(model_name, num_of_classes)
-
-# %% --------------------LOAD MODEL
-# load saved model state
-model.load_state_dict(torch.load(save_path + "model_" + model_name + ".pt"))
+model = model_dict["base_model"]
+model.load_state_dict(model_dict["state_dict"])
 
 # %% --------------------LOAD DATA
+input_size = 224
 # create transformer
 generic_transformer = transforms.Compose([
     transforms.Resize(input_size),
@@ -140,6 +49,7 @@ generic_transformer = transforms.Compose([
 # create dataset
 # using train dataset, since that is what we used to train the model
 train_dataset = datasets.ImageFolder(BASE_DIR + "root_data/train/", transform=generic_transformer)
+# train_dataset = datasets.ImageFolder(BASE_DIR + "Inference/", transform=generic_transformer)
 
 # create dataloader
 train_dataloader = DataLoader(train_dataset, num_workers=4, batch_size=BATCH_SIZE, shuffle=True)
@@ -312,5 +222,3 @@ res = Image.blend(hm_image, original, 0.3)
 
 plt.imshow(res)
 plt.show()
-
-
