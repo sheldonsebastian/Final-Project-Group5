@@ -1,4 +1,3 @@
-# https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
 # %%--------------------------------------Imports
 import os
 import copy
@@ -27,6 +26,7 @@ torch.backends.cudnn.deterministic = True
 BASE_DIR = "/home/ubuntu/Deep-Learning/Exam2/"
 save_path = BASE_DIR + "saved_models/"
 os.makedirs(save_path, exist_ok=True)
+
 
 # %% --------------------Configurable Parameters
 model_name = "resnet50"
@@ -186,9 +186,10 @@ generic_transformer = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 # create dataset using ImageFolder
-train_dataset = datasets.ImageFolder(BASE_DIR + "root_data/train/", transform=train_transformer)
+train_dataset = datasets.ImageFolder(DATA_DIR+"train",
+                                     transform=train_transformer)
 
-val_dataset = datasets.ImageFolder(BASE_DIR + "root_data/validation/",
+val_dataset = datasets.ImageFolder(DATA_DIR+"validation",
                                    transform=generic_transformer)
 
 # holdout_dataset = datasets.ImageFolder("/home/ubuntu/Workspaces/Project/root_data/holdout/",
@@ -272,8 +273,6 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_incepti
 
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
-
-                # finding accuracy
                 running_corrects += torch.sum(preds == labels.data)
 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
@@ -312,6 +311,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs, is_incepti
 
 # %% --------------------
 model.to(device)
+
 # store class labels
 idx_to_class = { v : k for k,v in train_dataset.class_to_idx.items()}
 # %%--------------------------
