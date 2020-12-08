@@ -17,8 +17,7 @@ OcclusionExperiment.py:
 To intrepret and visualize the CNN based on occlusion experiment
 
 Order to run the files:
-1. Data Download Scripts
-2. DataProcessing.py
-3. MaskDetector_Final.py
-4. Inference.py
-5. OcclusionExperiment.py
+1. Download Dataset from Kaggle: https://www.kaggle.com/sheldonsebastian/maskednet-flicker-faces
+2. Run MaskDetector_Final.py to create Model
+3. Inference.py
+4. OcclusionExperiment.py
