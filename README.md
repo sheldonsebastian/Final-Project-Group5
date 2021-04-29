@@ -15,9 +15,3 @@ To view the inference probability of each class based on input image passed.
 
 OcclusionExperiment.py:	
 To intrepret and visualize the CNN based on occlusion experiment
-
-Order to run the files:
-1. Download Dataset from Kaggle: https://www.kaggle.com/sheldonsebastian/maskednet-flicker-faces
-2. Run MaskDetector_Final.py to create Model
-3. Inference.py
-4. OcclusionExperiment.py
