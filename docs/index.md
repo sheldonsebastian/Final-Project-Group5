@@ -46,16 +46,18 @@ Of the 60,000 images 20,000 images were of incorrect worn masks, 20,000 images w
 correct worn masks and 20,000 images were of uncovered faces.
 <br>
 80% of the dataset was used for training and 20% was used as holdout or test set. The script to
-split into train-validation and holdout is found in DataPreprocessing.py. The data was organized
-such that it was accessible using the ImageFolder API of Pytorch.
+split into train-validation and holdout is found in DataPreprocessing.py. 
+<br>
+The data was organized such that it was accessible using the ImageFolder API of Pytorch.
+</div>
 
 <center><img src="saved_images/img1.png"/></center>
 
+<div style="text-align: justify">
 And inside each folder of holdout(test), train, and validation we have following folders:
-
+</div>
 <center><img src="saved_images/img2.png"/></center>
 
-</div>
 
 
 ## Network and Training
