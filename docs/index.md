@@ -44,11 +44,13 @@ images and is 15 GB in size.
 <br>
 Of the 60,000 images 20,000 images were of incorrect worn masks, 20,000 images were of
 correct worn masks and 20,000 images were of uncovered faces.
+<br>
 80% of the dataset was used for training and 20% was used as holdout or test set. The script to
 split into train-validation and holdout is found in DataPreprocessing.py. The data was organized
 such that it was accessible using the ImageFolder API of Pytorch.
 
 </div>
+![](saved_images/img1.jpg)
 
 
 ## Appendix
@@ -57,7 +59,7 @@ such that it was accessible using the ImageFolder API of Pytorch.
 
 1. Link to all code files:
 <br>
- https://github.com/sheldonsebastian/vbd_cxr
+ https://github.com/sheldonsebastian/face_mask_detector
 <br>
 
 </div>
