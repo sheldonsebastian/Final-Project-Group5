@@ -58,10 +58,87 @@ And inside each folder of holdout(test), train, and validation we have following
 </div>
 <center><img src="saved_images/img2.jpg"/></center>
 
+<div style="text-align: justify">
+The dataset contains the following 3 image labels:
+</div>
+<center><img src="saved_images/img3.jpg"/></center>
+
 
 
 ## Network and Training
 
+<div style="text-align: justify">
+For the purposes of this project we are planning to use Convolutional Neural Networks, in its
+standard form. We explored pre-trained models - Resnet18, Resnet50, Alexnet, VGG, Densenet
+and Inception. We trained all of these models for 20 epochs with standard hyperparameters and
+then then selected the one that gave us highest validation accuracy for further enhancements.
+<br>
+<br>
+ResNet50 gave us the highest validation accuracy of about 88% without any tuning and hence was
+selected for this project. ResNet50 is a 50 layer Residual Network. ResNet , short for Residual
+Networks, is a classic neural network used for many computer vision tasks. This model was the
+winner of the ImageNet challenge in 2015. The fundamental breakthrough with ResNet was it
+allows training of extremely deep neural networks with 150+layers. Prior to ResNet training very
+deep neural networks were difficult due to the problem of vanishing gradients.
+</div>
+
+## Experimental Setup
+
+<div style="text-align: justify">
+We selected ResNet50 because of the reasons mentioned above. The data was fed into the
+network with the following train, test and validation splits - 80:20 train and test, the validation was
+20% of the train. The network was then fine tuned to increase accuracy. Since the dataset was
+balanced we did not need too many augmentations.
+<br>
+<br>
+<i>Transformations</i>
+<br>
+Resize instead of RandomResizedCrop for train data - We used the pre-processing resize
+transform instead of the augmentation random resized crop because our data consisted of images
+which contain human faces in the entire frame in most cases, so our object of interest is within the
+frame.
+<br>
+ColorJitter Transformation - We used the ColorJitter transformation on the training data which
+randomly changes the color saturation of images to any percentage between zero and hundred.
+This helps in generalizing better masks of different colors.
+<br>
+We tried a few other augmentations like flipping images but since the data was balanced those
+augmentations only worsened accuracy.
+<br>
+<br>
+<i>Hyperparameters</i>
+Learning Rate - Learning rate of 0.001 was used for this model. We tried 0.0001 as well but that
+worsened the accuracy metrics.
+<br>
+Batch Size - Batch size of 512 was used. In some cases if the cuda ran out of memory we reduced
+the batch size to 256 or 128 to run the model.
+<br>
+Optimizer - Adam was used as the optimizer.
+<br>
+Epochs - The model was run for 10 epochs.
+<br>
+<br>
+<i>Regularization</i>
+<br>
+Regularizing with Dropout - We have used 30% dropout rate in our model to prevent overfitting.
+We tried using 20% but 30% gives us the optimum results.
+<br>
+<br>
+<i>Model Accuracy</i>
+<br>
+The performance of the model was judged based on accuracy and loss values for train, validation
+and holdout set. The loss on train and validation sets for ten epochs is given below -
+<br>
+<center><img src="saved_images/img4.jpg"/></center>
+The model does well since both train and validation loss are moving in the same direction for ten
+epochs and the validation loss decreases throughout the training.
+<br>
+Since the dataset was balanced, we have used accuracy as a metric to evaluate the model. The F1
+score is using the option average=’micro’ and since the dataset is balanced, it is equal to the
+accuracy. The results for the final model are given below -
+<br>
+<center><img src="saved_images/img5.jpg"/></center>
+</div>
 
 
 ## Appendix
