@@ -49,8 +49,17 @@ correct worn masks and 20,000 images were of uncovered faces.
 split into train-validation and holdout is found in DataPreprocessing.py. The data was organized
 such that it was accessible using the ImageFolder API of Pytorch.
 
+<center><img src="saved_images/img1.png"/></center>
+
+And inside each folder of holdout(test), train, and validation we have following folders:
+
+<center><img src="saved_images/img2.png"/></center>
+
 </div>
-![](saved_images/img1.jpg)
+
+
+## Network and Training
+
 
 
 ## Appendix
