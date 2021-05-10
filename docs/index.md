@@ -140,14 +140,119 @@ accuracy. The results for the final model are given below -
 <center><img src="saved_images/img5.jpg"/></center>
 </div>
 
+## Model Interpretation
 
-## Appendix
+<div style="text-align: justify">
+Once the model was trained with strong validation accuracy and low validation loss, we
+interpreted the CNN model on the training dataset using Occlusion experiment<sup>[3]</sup>.
+<br><br>
+Occlusion experiments are performed to determine which <b>patches of the image</b> contribute
+maximally to the output of the neural network.
+<br><br>
+In the occlusion experiment, we iterate over all the regions of the image systematically by
+occluding(blocking) a part of the image with a grey patch and monitor the probability of the
+classifier using a heatmap.
+</div>
+
+<center><img src="saved_images/img6.jpg"/></center>
+
+<div style="text-align: justify">
+After blending the probability heatmap and the original image we get the following output:
+<br>
+</div>
+
+<center><img src="saved_images/img7.jpg"/></center>
+
+<div style="text-align: justify">
+After blending the probability heatmap and the original image we get the following output:
+We notice that we get low probability for the classifier when the patches of images containing
+nose or upper mouth are occluded. Thus, the occlusion experiment tells us that the CNN model is
+learning relevant patterns in the image.
+<br><br>
+For other image labels the occlusion experiment results are as follows:
+</div>
+
+<center><img src="saved_images/img8.jpg"/></center>
+
+From above results we can conclude that the model is identifying relevant features to make
+classification predictions.
+
+## Results
+
+<div style="text-align: justify">
+To understand how well the model performs and make predictions on real world face images, we
+performed an inference for classification on images captured with a camera, with different
+samples of face images: without a face mask, with a face mask and with an incorrectly worn face
+mask.
+<br><br>
+A predict function was written that takes a processed image and returns the top k most likely
+classes along with their probabilities. The block diagram for this procedure is shown below:
+</div>
+<center><img src="saved_images/img9.jpg"/></center>
+<br><br>
+<center><img src="saved_images/img10.jpg"/></center>
+<center>Figure 6.1 Face mask prediction with face image covered</center>
+
+<div style="text-align: justify">
+We observed for an image with a face mask, the model gave a correct prediction with a
+probability of about 0.7. Other predictions were made with the model with the results shown
+below:
+</div>
+
+<center><img src="saved_images/img11.jpg"/></center>
+<center>Figure 6.2 Face mask prediction with face image uncovered, incorrect and covered</center>
+
+<div style="text-align: justify">
+We observed for an image without a face mask, the model gave a correct prediction with a
+probability of 1.0, while the prediction with an incorrectly worn face mask gave a correction
+prediction with a probability of about 0.75. We tested the model with a different color of face
+mask (white) to observe if there was any significant difference in the prediction with the black face
+mask used earlier, The model gave a reduced probability of about 0.6 with a correct prediction of
+a covered facemask.
+</div>
+
+We investigated further by cropping the image to reveal the face of the person only. The result of
+the prediction is shown below:
+<center><img src="saved_images/img12.jpg"/></center>
+<center>Figure 6.3 Face mask prediction with cropped face image</center>
+
+The model produced a correct prediction for a covered face mask with a probability of
+approximately 0.95, an improvement on previously classification results.
+
+## Summary and Conclusion
+
+<div style="text-align: justify">
+From the results, we conclude that the model performs better when the input image is processed
+to reveal the face only. This is because the model was trained to make classification based on face
+mask coverings as we observed in the occlusion experiment. From figure 6.3 a cropped face image
+produced a correct prediction with a probability of approximately 0.95, which is consistent with
+accuracy of <b>0.9522</b> obtained for the held-out dataset. In figures 6.1 and 6.2, other features, like the
+surrounding environment and the body of the human, contributed to the features fed to the model
+which reduced the prediction performance.
+Further work will require the development of a primary model to detect faces in an image, before
+applying the face mask model developed in this project. The primary model should be able to
+predict a bounding box around the face for detection. The face can then be fed to the face mask
+detector model for classification.
+</div>
+
+
+## References
 
 <div style="text-align: justify">
 
-1. Link to all code files:
-<br>
- https://github.com/sheldonsebastian/face_mask_detector
+1. Adnane Cabani, Karim Hammoudi, Halim Benhabiles, and Mahmoud Melkemi,
+"MaskedFace-Net - A dataset of correctly/incorrectly masked face images in the context of
+COVID-19", Smart Health, ISSN 2352-6483, Elsevier, 2020
+<br><br>
+2. A Style-Based Generator Architecture for Generative Adversarial Networks Tero Karras
+(NVIDIA), Samuli Laine (NVIDIA), Timo Aila (NVIDIA)
+<br><br>
+3. Kumar, N. (2019, December 17). Visualizing Convolution Neural Networks using Pytorch.
+Retrieved December 07, 2020, from
+https://towardsdatascience.com/visualizing-convolution-neural-networks-using-pytorch
+-3dfa8443e74e
+<br><br>
+4. Link to all code files: https://github.com/sheldonsebastian/face_mask_detector
 <br>
 
 </div>
