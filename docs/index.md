@@ -51,12 +51,12 @@ split into train-validation and holdout is found in DataPreprocessing.py.
 The data was organized such that it was accessible using the ImageFolder API of Pytorch.
 </div>
 
-<center><img src="saved_images/img1.png"/></center>
+<center><img src="saved_images/img1.jpg"/></center>
 
 <div style="text-align: justify">
 And inside each folder of holdout(test), train, and validation we have following folders:
 </div>
-<center><img src="saved_images/img2.png"/></center>
+<center><img src="saved_images/img2.jpg"/></center>
 
 
 
